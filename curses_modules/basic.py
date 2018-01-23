@@ -75,10 +75,42 @@ class Screen:
     def debug(self, str):
         self.stdscr.addstr(self._max_y-1, 2, str, curses.color_pair(3))
 
-    def refresh(self, force=False):
+    def isEdge(self,x,y,edge):
+
+        _ch = self.screen[x][y][1][0]
+
+        _ch_N = _ch
+        _ch_W = _ch
+        _ch_S = _ch
+        _ch_E = _ch
+
+        if y > 0:
+            _ch_N = self.screen[x][y-1][1][0]
+
+        if x > 0:
+            _ch_W = self.screen[x-1][y][1][0]
+
+        if y < self._max_y-1:
+            _ch_S = self.screen[x][y+1][1][0]
+
+        if x < self._max_x-1:
+            _ch_E = self.screen[x+1][y][1][0]
+
+        if (_ch != _ch_N) or (_ch != _ch_E) or (_ch != _ch_W) or (_ch != _ch_S):
+            return True
+        return False
+
+    def refresh(self, force=False, edge='^'):
         for _x in self.screen:
             for _y in self.screen[_x]:
+                """
                 if force or _y[3]:
+                    self.stdscr.addstr(_y[0]+1, _x+1, _y[1], curses.color_pair(_y[2]) | curses.A_BOLD)
+                    self.screen[_x][_y[0]][3] = False
+                """
+                if self.isEdge(_x,_y[0],edge):
+                    self.stdscr.addstr(_y[0]+1, _x+1, edge, curses.color_pair(_y[2]) | curses.A_BOLD)
+                elif force or _y[3]:
                     self.stdscr.addstr(_y[0]+1, _x+1, _y[1], curses.color_pair(_y[2]) | curses.A_BOLD)
                     self.screen[_x][_y[0]][3] = False
         self.stdscr.refresh()
@@ -92,7 +124,6 @@ class Screen:
 
     def set_win(self):
         curses.start_color()
-        curses.init_pair(10, curses.COLOR_BLACK, curses.COLOR_BLACK)
         curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
         curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
         curses.init_pair(3, curses.COLOR_BLUE, curses.COLOR_BLACK)
@@ -100,6 +131,7 @@ class Screen:
         curses.init_pair(5, curses.COLOR_CYAN, curses.COLOR_BLACK)
         curses.init_pair(6, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
         curses.init_pair(7, curses.COLOR_WHITE, curses.COLOR_BLACK)
+        curses.init_pair(10, curses.COLOR_BLACK, curses.COLOR_BLACK)
         curses.noecho()
         curses.cbreak()
         self.stdscr.nodelay(1)
