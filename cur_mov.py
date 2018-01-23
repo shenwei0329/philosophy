@@ -12,6 +12,7 @@
 from curses_modules import basic,obj
 import time, random, sys
 
+edge_pattern = '^'
 obj_pattern = ['.', '-', '=', '+', '#', 'x', '*', 'o', 'O']
 
 def main():
@@ -21,19 +22,19 @@ def main():
 
     try:
         scr.set_win()
-        scr.refresh(force=True)
+        scr.refresh(force=True, edge=edge_pattern)
 
         scr.show_info("Press 'q' key to Quit...")
 
         dot = []
-        for _i in range(5):
-            dot.append(obj.Obj("%d" % _i, 0, 0, obj_pattern[_i], _i+1))
+        for _i in range(10):
+            dot.append(obj.Obj("%d" % _i, 0, 0, obj_pattern[_i % len(obj_pattern)], (_i % 7)+1))
         while True:
             for _d in dot:
                 _d.move()
                 _x,_y,_cr,_col = _d.getPosition()
                 scr.display_dot(_x,_y,_cr,colorpair=_col)
-            scr.refresh()
+            scr.refresh(edge=edge_pattern)
             time.sleep(0.01)
             chr = scr.get_ch_and_continue(False)
             if chr==ord('q'):
