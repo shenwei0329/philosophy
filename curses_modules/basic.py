@@ -156,7 +156,7 @@ class Screen:
             return True
         return False
 
-    def refresh(self, force=False, edge='^'):
+    def refresh(self, force=False, edge='^', obj=None):
 
         self.TS.addTS()
 
@@ -167,9 +167,17 @@ class Screen:
                 elif force or _y[3]:
                     self.main_window.addstr(_y[0]+1, _x+1, _y[1], curses.color_pair(_y[2]) | curses.A_BOLD)
                     self.screen[_x][_y[0]][3] = False
+        """显示当前状态
+        """
         _t, _year, _month, _day = self.TS.getTS()
         self.menu_window.addstr(1, 2, "TimeScale: % 8d" % _t)
         self.menu_window.addstr(2, 2, "Date: % 6d-%02d-%02d" % (_year, _month+1, _day+1))
+        if obj is not None:
+            _i = 0
+            for _o in obj:
+                _x,_y,_cr,_col = _o.getPosition()
+                self.menu_window.addstr(4+_i, 2, "Obj[%c.%d]: (%d,%d)" % (_cr, _col, _x, _y))
+                _i += 1
         self.main_window.refresh()
         self.menu_window.refresh()
 
