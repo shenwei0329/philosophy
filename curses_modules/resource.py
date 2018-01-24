@@ -9,7 +9,8 @@ import math
 class E:
 
     def __init__(self):
-        pass
+        self.max_quta = 10000
+        self.quta = 10
 
     def _dlt_E(self, time_scale):
         _x = time_scale % 360
