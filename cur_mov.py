@@ -41,9 +41,8 @@ def main():
                 scr.saveData()
                 for _d in dot:
                     _d.save()
-                return
+                break
     except Exception,e:
-        scr.debug("Err:%s" % sys.exc_info()[0])
         scr.get_ch_and_continue(True)
         raise e
     finally:
