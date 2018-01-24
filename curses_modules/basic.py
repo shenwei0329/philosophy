@@ -84,7 +84,7 @@ class Screen:
                 self.screen[int(_k)] = _screen[_k]
             fp.close()
         except:
-            for _x in range(0, self._max_x):
+            for _x in range(0, self._max_x+1):
                 self.screen[_x] = []
                 for _y in range(0, self._max_y):
                     self.screen[_x].append([_y, ' ', 0, False])
@@ -104,17 +104,15 @@ class Screen:
 
         if x<0:
             x = self._max_x - (x % self._max_x)
-        else:
-            x = (x % self._max_x)
-            if x>0:
-                x -= 1
+        x = (x % self._max_x)
+        if x>0:
+            x -= 1
 
         if y<0:
             y = self._max_y - (y % self._max_y)
-        else:
-            y = (y % self._max_y)
-            if y>0:
-                y -= 1
+        y = (y % self._max_y)
+        if y>0:
+            y -= 1
 
         if self.screen[x][y][1] != str or self.screen[x][y][2] != colorpair:
             self.screen[x][y][1] = str
@@ -177,9 +175,9 @@ class Screen:
 
     def get_ch_and_continue(self, wait):
         if wait:
-            self.window.nodelay(0)
-        self.window.nodelay(1)
-        ch = self.window.getch()
+            self.stdscr.nodelay(0)
+        ch = self.stdscr.getch()
+        self.stdscr.nodelay(1)
         return ch
 
     def set_win(self):
