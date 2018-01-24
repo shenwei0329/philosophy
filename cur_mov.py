@@ -46,6 +46,9 @@ def main():
         scr.get_ch_and_continue(True)
         raise e
     finally:
+        scr.saveData()
+        for _d in dot:
+            _d.save()
         scr.unset_win()
 
 if __name__=='__main__':
