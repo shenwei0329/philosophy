@@ -34,7 +34,7 @@ def main():
                 _d.move()
                 _x,_y,_cr,_col = _d.getPosition()
                 scr.display_dot(_x,_y,_cr,colorpair=_col)
-            scr.refresh(edge=edge_pattern)
+            scr.refresh(edge=edge_pattern, obj=dot)
             time.sleep(0.01)
             chr = scr.get_ch_and_continue(False)
             if chr==ord('q'):
