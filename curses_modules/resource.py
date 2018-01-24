@@ -4,6 +4,16 @@
 #   ===============
 #
 
+import math
+
+class E:
+
+    def __init__(self):
+        pass
+
+    def _dlt_E(self, time_scale):
+        _x = time_scale % 360
+        math.sin((2 * math.pi / 360) * _x)
 
 class Resource:
 
@@ -13,5 +23,5 @@ class Resource:
     def get(self, x, y):
         pass
 
-    def refresh(self):
+    def refresh(self, time_scale):
         pass
