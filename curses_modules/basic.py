@@ -6,8 +6,14 @@
 
 import curses
 import json
+import resource, obj
 
 MENU_W = 40
+SEASON = ['Winter','Spring','Summer','Autumn']
+MONTH_SEASON = [0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 0]
+edge_pattern = '^'
+obj_pattern = ['.', '-', '=', '+', '#', 'x', '*', 'o', 'O']
+
 
 class TimeScale:
 
@@ -73,8 +79,18 @@ class Screen:
         self._max_y = self.MAX_Y-4
         self._max_x = self.MAX_X-MENU_W-6
         self.screen = {}
+        """创建【时标】
+        """
         self.TS = TimeScale()
+        """创建【资源】
+        """
+        self.R = resource.Resource(self._max_x,self._max_y)
         self.loadData('screen.txt')
+        """创建【对象】
+        """
+        self.Obj = []
+        for _i in range(10):
+            self.Obj.append(obj.Obj("%d" % _i, 0, 0, obj_pattern[_i % len(obj_pattern)], (_i % 7)+1))
 
     def loadData(self, file_name):
         try:
@@ -93,6 +109,9 @@ class Screen:
         fp = open('screen.txt', 'w')
         json.dump(self.screen, fp)
         fp.close()
+        for _o in self.Obj:
+            _o.save()
+
 
     def getX(self):
         return self._max_x
@@ -156,9 +175,14 @@ class Screen:
             return True
         return False
 
-    def refresh(self, force=False, edge='^', obj=None):
+    def refresh(self, force=False):
 
+        edge = edge_pattern
         self.TS.addTS()
+        _t, _year, _month, _day = self.TS.getTS()
+        """更新【资源】
+        """
+        _total_E = self.R.refresh(_t)
 
         for _x in self.screen:
             for _y in self.screen[_x]:
@@ -169,15 +193,28 @@ class Screen:
                     self.screen[_x][_y[0]][3] = False
         """显示当前状态
         """
-        _t, _year, _month, _day = self.TS.getTS()
         self.menu_window.addstr(1, 2, "TimeScale: % 8d" % _t)
-        self.menu_window.addstr(2, 2, "Date: % 6d-%02d-%02d" % (_year, _month+1, _day+1))
-        if obj is not None:
-            _i = 0
-            for _o in obj:
-                _x,_y,_cr,_col = _o.getPosition()
-                self.menu_window.addstr(4+_i, 2, "Obj[%c.%d]: (%d,%d)" % (_cr, _col, _x, _y))
-                _i += 1
+        self.menu_window.addstr(2, 2, "Date: % 6d-%02d-%02d " % (_year, _month+1, _day+1))
+        _season = MONTH_SEASON[_month]
+        self.menu_window.addstr(2, 22, "%s" % SEASON[_season], curses.color_pair(_season) | curses.A_BOLD)
+        self.menu_window.addstr(3, 2, "Total E:    % 12d" % _total_E, curses.color_pair(_season) | curses.A_BOLD)
+
+        _i = 0
+        _tot_alive = 0
+        _tot_req = 0
+        for _o in self.Obj:
+            _o.move()
+            _alive,_req = _o.time_scale(_t)
+            _tot_alive += _alive
+            _tot_req += _req
+            _x,_y,_cr,_col = _o.getPosition()
+            self.display_dot(_x, _y, _cr, colorpair=_col)
+            _x,_y,_cr,_col = _o.getPosition()
+            self.menu_window.addstr(7+_i*3, 2, "Obj[%c.%d]: (%d,%d)" % (_cr, _col, _x, _y))
+            self.menu_window.addstr(8+_i*3, 4, "R: (%d,%d)" % (_alive, _req), curses.color_pair(7) | curses.A_BOLD)
+            _i += 1
+        self.menu_window.addstr(4, 2, "Total P:    % 12d" % _tot_alive, curses.color_pair(1) | curses.A_BOLD)
+        self.menu_window.addstr(5, 2, "Total Ereq: % 12d" % _tot_req, curses.color_pair(7) | curses.A_BOLD)
         self.main_window.refresh()
         self.menu_window.refresh()
 
@@ -192,11 +229,12 @@ class Screen:
         curses.start_color()
         curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
         curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
-        curses.init_pair(3, curses.COLOR_BLUE, curses.COLOR_BLACK)
-        curses.init_pair(4, curses.COLOR_YELLOW, curses.COLOR_BLACK)
-        curses.init_pair(5, curses.COLOR_CYAN, curses.COLOR_BLACK)
-        curses.init_pair(6, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
-        curses.init_pair(7, curses.COLOR_WHITE, curses.COLOR_BLACK)
+        curses.init_pair(3, curses.COLOR_YELLOW, curses.COLOR_BLACK)
+        curses.init_pair(4, curses.COLOR_GREEN, curses.COLOR_BLACK)
+        curses.init_pair(5, curses.COLOR_RED, curses.COLOR_BLACK)
+        curses.init_pair(6, curses.COLOR_CYAN, curses.COLOR_BLACK)
+        curses.init_pair(7, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
+        curses.init_pair(8, curses.COLOR_WHITE, curses.COLOR_BLACK)
         curses.init_pair(10, curses.COLOR_BLACK, curses.COLOR_BLACK)
         curses.noecho()
         curses.cbreak()
