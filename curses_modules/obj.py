@@ -6,6 +6,7 @@
 
 from policy import Policy
 import json
+import resource
 
 
 class Obj:
@@ -15,6 +16,11 @@ class Obj:
         self.chr = ch
         self.color = color
         self.V = (0., 0., 0., 0.,)
+        self.P = []
+        """初值：每个群体100人
+        """
+        for _i in range(100):
+            self.P.append(resource.Ps())
         self.policy = Policy()
         try:
             self.load()
@@ -43,3 +49,15 @@ class Obj:
         self.chr = _info["ch"]
         self.color = _info["c"]
         fp.close()
+
+    def time_scale(self, ts):
+        _alive = 0
+        _requirment = 0
+        for _p in self.P:
+            if ts % 24 == 0:
+                _requirment += _p.life_one_day()
+            else:
+                _requirment += _p.show()
+            if _p.alive():
+                    _alive += 1
+        return _alive, _requirment
