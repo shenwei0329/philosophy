@@ -15,41 +15,57 @@ edge_pattern = '^'
 obj_pattern = ['.', '-', '=', '+', '#', 'x', '*', 'o', 'O']
 
 
+class BackUp:
+
+    def __init__(self, fn):
+        self.fn = "data/%s" % fn
+
+    def save(self, data):
+        fp = open(self.fn, 'w')
+        json.dump(data, fp)
+        fp.close()
+
+    def load(self):
+        try:
+            fp = open(self.fn, 'r')
+            _data = json.load(fp)
+            fp.close()
+            return _data
+        except:
+            return None
+
 class TimeScale:
 
     def __init__(self):
+        self.backup = BackUp("timescale.txt")
         self.TS = 0
         self.year = 0
         self.month = 0
         self.day = 0
-        self._load('timescale.txt')
+        self._load()
 
-    def _save(self, fn):
-        fp = open(fn, 'w')
+    def _save(self):
         _ts = {
             'TS': self.TS,
             'year': self.year,
             'month': self.month,
             'day': self.day,
         }
-        json.dump(_ts, fp)
-        fp.close()
+        self.backup.save(_ts)
 
-    def _load(self, fn):
-        try:
-            fp = open(fn, 'r')
-            _ts = json.load(fp)
+    def _load(self):
+        _ts = self.backup.load()
+        if _ts is not None:
             self.TS = _ts['TS']
             self.year = _ts['year']
             self.month = _ts['month']
             self.day = _ts['day']
-            fp.close()
-        except:
+        else:
             self.TS = 0
             self.year = 0
             self.month = 0
             self.day = 0
-            self._save(fn)
+            self._save()
 
     def getTS(self):
         return self.TS, self.year, self.month, self.day
@@ -66,11 +82,12 @@ class TimeScale:
                     self.year += 1
 
     def saveTS(self):
-        self._save('timescale.txt')
+        self._save()
 
 class Screen:
 
     def __init__(self):
+        self.backup = BackUp("screen.txt")
         self.stdscr = curses.initscr()
         self.MAX_Y, self.MAX_X = self.stdscr.getmaxyx()
         self.window = self.stdscr.subwin(self.MAX_Y,self.MAX_X,0,0)
@@ -85,30 +102,26 @@ class Screen:
         """创建【资源】
         """
         self.R = resource.Resource(self._max_x,self._max_y)
-        self.loadData('screen.txt')
+        self.loadData()
         """创建【对象】
         """
         self.Obj = []
         for _i in range(10):
             self.Obj.append(obj.Obj("%d" % _i, 0, 0, obj_pattern[_i % len(obj_pattern)], (_i % 7)+1))
 
-    def loadData(self, file_name):
-        try:
-            fp = open(file_name, 'r')
-            _screen = json.load(fp)
+    def loadData(self):
+        _screen = self.backup.load()
+        if _screen is not None:
             for _k in _screen:
                 self.screen[int(_k)] = _screen[_k]
-            fp.close()
-        except:
+        else:
             for _x in range(0, self._max_x+1):
                 self.screen[_x] = []
                 for _y in range(0, self._max_y):
                     self.screen[_x].append([_y, ' ', 0, False])
 
     def saveData(self):
-        fp = open('screen.txt', 'w')
-        json.dump(self.screen, fp)
-        fp.close()
+        self.backup.save(self.screen)
         for _o in self.Obj:
             _o.save()
 
@@ -245,6 +258,7 @@ class Screen:
 
     def unset_win(self):
         self.TS.saveTS()
+        self.R.save()
         curses.nocbreak()
         self.stdscr.keypad(0)
         curses.echo()
