@@ -217,14 +217,15 @@ class Screen:
         _tot_req = 0
         for _o in self.Obj:
             _o.move()
-            _alive,_req = _o.time_scale(_t)
+            _alive, _req, _male, _female, _mating = _o.time_scale(_t)
             _tot_alive += _alive
             _tot_req += _req
             _x,_y,_cr,_col = _o.getPosition()
             self.display_dot(_x, _y, _cr, colorpair=_col)
             _x,_y,_cr,_col = _o.getPosition()
             self.menu_window.addstr(7+_i*3, 2, "Obj[%c.%d]: (%d,%d)" % (_cr, _col, _x, _y))
-            self.menu_window.addstr(8+_i*3, 4, "R: (%d,%d)" % (_alive, _req), curses.color_pair(7) | curses.A_BOLD)
+            self.menu_window.addstr(8+_i*3, 4, "R: %d %d %d %d %d" % (_alive, _req, _male, _female, _mating),
+                                    curses.color_pair(7) | curses.A_BOLD)
             _i += 1
         self.menu_window.addstr(4, 2, "Total P:    % 12d" % _tot_alive, curses.color_pair(1) | curses.A_BOLD)
         self.menu_window.addstr(5, 2, "Total Ereq: % 12d" % _tot_req, curses.color_pair(7) | curses.A_BOLD)
