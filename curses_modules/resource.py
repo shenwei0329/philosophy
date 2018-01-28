@@ -141,44 +141,78 @@ class Ps:
     def show_name(self):
         return self.name
 
+    def show_sex(self):
+        return self.sex
+
+    def is_mating(self):
+        if self.reproduction["pregnant"]>0:
+            return True
+        return False
+
     def alive(self):
         if (self.age/360.) > 80:
             return False
         else:
             return True
 
-    def mating(self):
+    def can_mating(self, need):
+        """
+        判断个体是否具备交配条件
+        :param need: 性别
+        :return: 判断结果
+        """
+        if need == 'Male':
+            if (self.sex == 'Male') and (self.age >= 16) and (self.age < 70) and (self.quota > 5):
+                return True
+        else:
+            if (self.age >= 14) and (self.age < 50) and (self.quota > 3):
+                if (self.reproduction["pregnant"] < 0) and \
+                        ((self.reproduction["interval"] < 0) or (self.reproduction["interval"] >= 360)):
+                    return True
+        return False
+
+    def mating(self, need):
         """
         交配：条件男女之间，女性满足生育条件
+        :need: 交配条件，男性或女性
         :return: 是否怀孕
         """
-        if (self.sex == 'Male') and (self.age >= 16) and (self.age < 70):
-            return True
+        if not self.can_mating(need):
+            return False
+
+        if need == 'Male':
+            if random.random() > 0.6:
+                """设置受孕条件
+                """
+                self.quota -= 5
+                return True
+            else:
+                return False
         else:
             _ret = False
-            if (self.age>=14) and (self.age<50):
+            if (self.age>=14) and (self.age<50) and (self.quota>3):
                 if self.reproduction["pregnant"] < 0:
-                    if self.reproduction["interval"] < 0:
-                        _ret = True
-                    elif self.reproduction["interval"] >= 360:
-                        """已间隔1年
-                        """
-                        _ret = True
-                else:
-                    """在孕期
+                    """未孕
                     """
-                    return True
+                    if random.random() > 0.6:
+                        """设置受孕条件
+                        """
+                        if (self.reproduction["interval"] < 0) or (self.reproduction["interval"] >= 360):
+                            """已间隔1年
+                            """
+                            _ret = True
             if _ret:
                 """怀孕
                 """
                 self.reproduction["pregnant"] = 0
                 self.reproduction["interval"] = -1
-        return _ret
+                self.quota -= 3
+            return _ret
 
     def birth(self):
         """
-        生育
-        :return:
+        生育：判断孕期情况
+        :return: 是否到孕期
         """
         if self.sex == "Female":
             if self.reproduction["pregnant"] >= 300:
