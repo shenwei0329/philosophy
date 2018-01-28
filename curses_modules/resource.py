@@ -181,8 +181,9 @@ class Ps:
             return False
 
         if need == 'Male':
-            if random.random() > 0.6:
-                """设置受孕条件
+            _v = random.random()
+            if (_v > 0.6) and (_v < 0.8):
+                """设置受孕条件，由于繁殖太快，需要严格受孕条件
                 """
                 self.quota -= 5
                 return True
@@ -194,8 +195,9 @@ class Ps:
                 if self.reproduction["pregnant"] < 0:
                     """未孕
                     """
-                    if random.random() > 0.6:
-                        """设置受孕条件
+                    _v = random.random()
+                    if (_v > 0.5) and (_v < 0.8):
+                        """设置受孕条件，由于繁殖太快，需要严格受孕条件
                         """
                         if (self.reproduction["interval"] < 0) or (self.reproduction["interval"] >= 360):
                             """已间隔1年
