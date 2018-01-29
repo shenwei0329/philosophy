@@ -5,8 +5,10 @@
 #
 
 import curses
+import MySQLdb
 import json
-import resource, obj
+import resource
+import obj
 
 MENU_W = 40
 SEASON = ['Winter','Spring','Summer','Autumn']
@@ -14,22 +16,95 @@ MONTH_SEASON = [0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 0]
 edge_pattern = '^'
 obj_pattern = ['.', '-', '=', '+', '#', 'x', '*', 'o', 'O']
 
+def_file_backup = False
+db = None
+cur = None
+if not def_file_backup:
+    """连接数据库"""
+    db = MySQLdb.connect(host="47.93.192.232", user="root", passwd="sw64419", db="nebula", charset='utf8')
+    cur = db.cursor()
+
+
+class SqlService:
+
+    def __init__(self):
+        global db, cur
+        self.db = db
+        self.cur = cur
+
+    def insert(self, _sql):
+        if self.cur is None:
+            return
+        try:
+            self.cur.execute(_sql)
+            self.db.commit()
+        except:
+            self.db.rollback()
+
+    def count(self, _sql):
+        if self.cur is None:
+            return
+        try:
+            self.cur.execute(_sql)
+            _result = self.cur.fetchone()
+            _n = _result[0]
+            if _n is None:
+                _n = 0
+        except:
+            _n = 0
+        finally:
+            return _n
+
+    def do(self, _sql):
+        if self.cur is None:
+            return
+        self.cur.execute(_sql)
+        return self.cur.fetchall()
+
 
 class BackUp:
+    """
+    引入数据库操作：
+    fn：主键
+    data：值
+    """
 
     def __init__(self, fn):
+        global cur
         self.fn = "data/%s" % fn
+        self.key = fn
+        self.sql_hdr = SqlService()
 
     def save(self, data):
-        fp = open(self.fn, 'w')
-        json.dump(data, fp)
-        fp.close()
+        global def_file_backup
+        if def_file_backup:
+            fp = open(self.fn, 'w')
+            json.dump(data, fp)
+            fp.close()
+        else:
+            _str = json.dumps(data)
+            _sql = 'select id from backup_t where key="%s"' % self.key
+            if self.sql_hdr.count(_sql)>0:
+                _sql = 'update backup_t set value="%s" where key="%s"' % (_str, self.key)
+                self.sql_hdr.do(_sql)
+            else:
+                _sql = 'insert into backup_t(key,value) values("%s","%s")' % (_str, self.key)
+                self.sql_hdr.insert(_sql)
 
     def load(self):
+        global def_file_backup
         try:
-            fp = open(self.fn, 'r')
-            _data = json.load(fp)
-            fp.close()
+            if def_file_backup:
+                fp = open(self.fn, 'r')
+                _data = json.load(fp)
+                fp.close()
+            else:
+                _sql = 'select value from backup_t where key="%s"' % self.key
+                _res = self.sql_hdr.do(_sql)
+                if (_res is not None) and (len(_res) > 0):
+                    _data = _res[0]
+                else:
+                    _data = None
             return _data
         except:
             return None
