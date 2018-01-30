@@ -21,7 +21,7 @@ db = None
 cur = None
 if not def_file_backup:
     """连接数据库"""
-    db = MySQLdb.connect(host="47.93.192.232", user="root", passwd="sw64419", db="nebula", charset='utf8')
+    db = MySQLdb.connect(host="127.0.0.1", user="root", passwd="sw64419", db="nebula", charset='utf8')
     cur = db.cursor()
 
 
