@@ -18,7 +18,7 @@ class Obj:
 
     def __init__(self, name, init_x, init_y, ch, color):
         self.name = name
-        _fn = "dot%s.txt" % self.name
+        _fn = "dot%s" % self.name
         self.backup = basic.BackUp(_fn)
         self.chr = ch
         self.color = color
