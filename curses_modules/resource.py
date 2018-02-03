@@ -75,7 +75,7 @@ class Ps:
 
     def __init__(self, name):
         self.name = name
-        _fn = "person-%s.txt" % name
+        _fn = "person-%s" % name
         self.backup = basic.BackUp(_fn)
         _person = self.backup.load()
         if _person is not None:
@@ -260,7 +260,7 @@ class Ps:
 class Resource:
 
     def __init__(self, MAX_X, MAX_Y):
-        self.backup = basic.BackUp('resource.txt')
+        self.backup = basic.BackUp('resource')
         self.MAX_X = MAX_X
         self.MAX_Y = MAX_Y
         self.E_unit = {}
