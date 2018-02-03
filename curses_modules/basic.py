@@ -5,10 +5,13 @@
 #
 
 import curses
-import MySQLdb
+#import MySQLdb
 import json
+import types
 import resource
 import obj
+from pymongo import MongoClient
+
 
 MENU_W = 40
 SEASON = ['Winter','Spring','Summer','Autumn']
@@ -16,13 +19,16 @@ MONTH_SEASON = [0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 0]
 edge_pattern = '^'
 obj_pattern = ['.', '-', '=', '+', '#', 'x', '*', 'o', 'O']
 
-def_file_backup = False
+def_backup = 'mongodb'
+
 db = None
 cur = None
-if not def_file_backup:
+if def_backup == 'mysql':
     """连接数据库"""
     db = MySQLdb.connect(host="127.0.0.1", user="root", passwd="sw64419", db="nebula", charset='utf8')
     cur = db.cursor()
+elif def_backup == 'mongodb':
+    db = MongoClient().philosophy
 
 
 class SqlService:
@@ -62,6 +68,8 @@ class SqlService:
         return self.cur.fetchall()
 
 
+
+
 class BackUp:
     """
     引入数据库操作：
@@ -70,34 +78,51 @@ class BackUp:
     """
 
     def __init__(self, fn):
-        global cur
+        global db,def_backup
+        self.db = db
         self.fn = "data/%s" % fn
         self.key = fn
-        self.sql_hdr = SqlService()
+        self.sql_hdr = None
+        if def_backup == 'mysql':
+            self.sql_hdr = SqlService()
 
     def save(self, data):
-        global def_file_backup
-        if def_file_backup:
-            fp = open(self.fn, 'w')
-            json.dump(data, fp)
-            fp.close()
-        else:
-            _str = json.dumps(data)
-            _sql = 'select id from backup_t where key="%s"' % self.key
-            if self.sql_hdr.count(_sql)>0:
-                _sql = 'update backup_t set value="%s" where key="%s"' % (_str, self.key)
-                self.sql_hdr.do(_sql)
+        global def_backup
+
+        try:
+            if def_backup == 'mongodb':
+                _data = json.dumps(data)
+                if type(self.db.info.find_one({"key": self.key})) is types.NoneType:
+                    self.db.info.insert({"key": self.key, "value": _data})
+                else:
+                    self.db.info.update({"key": self.key}, {"key": self.key, "value": _data})
+            elif def_backup == 'file':
+                fp = open(self.fn, 'w')
+                json.dump(data, fp)
+                fp.close()
             else:
-                _sql = 'insert into backup_t(key,value) values("%s","%s")' % (_str, self.key)
-                self.sql_hdr.insert(_sql)
+                _str = json.dumps(data)
+                _sql = 'select id from backup_t where key="%s"' % self.key
+                if self.sql_hdr.count(_sql)>0:
+                    _sql = 'update backup_t set value="%s" where key="%s"' % (_str, self.key)
+                    self.sql_hdr.do(_sql)
+                else:
+                    _sql = 'insert into backup_t(key,value) values("%s","%s")' % (_str, self.key)
+                    self.sql_hdr.insert(_sql)
+        except:
+            return
 
     def load(self):
-        global def_file_backup
+        global def_backup
         try:
-            if def_file_backup:
+            if def_backup == 'file':
                 fp = open(self.fn, 'r')
                 _data = json.load(fp)
                 fp.close()
+            elif def_backup == 'mongodb':
+                _data = self.db.info.find_one({"key": self.key})
+                if type(_data) is not types.NoneType:
+                    _data = json.loads(_data["value"])
             else:
                 _sql = 'select value from backup_t where key="%s"' % self.key
                 _res = self.sql_hdr.do(_sql)
@@ -112,7 +137,7 @@ class BackUp:
 class TimeScale:
 
     def __init__(self):
-        self.backup = BackUp("timescale.txt")
+        self.backup = BackUp("timescale")
         self.TS = 0
         self.year = 0
         self.month = 0
@@ -162,7 +187,7 @@ class TimeScale:
 class Screen:
 
     def __init__(self):
-        self.backup = BackUp("screen.txt")
+        self.backup = BackUp("screen")
         self.stdscr = curses.initscr()
         self.MAX_Y, self.MAX_X = self.stdscr.getmaxyx()
         self.window = self.stdscr.subwin(self.MAX_Y,self.MAX_X,0,0)
@@ -181,7 +206,7 @@ class Screen:
         """创建【对象】
         """
         self.Obj = []
-        for _i in range(10):
+        for _i in range(5):
             self.Obj.append(obj.Obj("%d" % _i, 0, 0, obj_pattern[_i % len(obj_pattern)], (_i % 7)+1))
 
     def loadData(self):
