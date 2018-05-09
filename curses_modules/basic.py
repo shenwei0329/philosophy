@@ -21,7 +21,7 @@ db = None
 cur = None
 if not def_file_backup:
     """连接数据库"""
-    db = MySQLdb.connect(host="127.0.0.1", user="root", passwd="sw64419", db="nebula", charset='utf8')
+    db = MySQLdb.connect(host="127.0.0.1", user="root", passwd="sw64419", db="philosophy", charset='utf8')
     cur = db.cursor()
 
 
@@ -43,7 +43,7 @@ class SqlService:
 
     def count(self, _sql):
         if self.cur is None:
-            return
+            return 0
         try:
             self.cur.execute(_sql)
             _result = self.cur.fetchone()
@@ -83,12 +83,12 @@ class BackUp:
             fp.close()
         else:
             _str = json.dumps(data)
-            _sql = 'select id from backup_t where key="%s"' % self.key
-            if self.sql_hdr.count(_sql)>0:
-                _sql = 'update backup_t set value="%s" where key="%s"' % (_str, self.key)
+            _sql = 'select id from backup_t where t_key="%s"' % self.key
+            if self.sql_hdr.count(_sql) > 0:
+                _sql = 'update backup_t set t_value="%s" where t_key="%s"' % (_str, self.key)
                 self.sql_hdr.do(_sql)
             else:
-                _sql = 'insert into backup_t(key,value) values("%s","%s")' % (_str, self.key)
+                _sql = 'insert into backup_t(t_key,t_value) values("%s","%s")' % (self.key, _str)
                 self.sql_hdr.insert(_sql)
 
     def load(self):
@@ -99,7 +99,7 @@ class BackUp:
                 _data = json.load(fp)
                 fp.close()
             else:
-                _sql = 'select value from backup_t where key="%s"' % self.key
+                _sql = 'select t_value from backup_t where t_key="%s"' % self.key
                 _res = self.sql_hdr.do(_sql)
                 if (_res is not None) and (len(_res) > 0):
                     _data = _res[0]
@@ -108,6 +108,7 @@ class BackUp:
             return _data
         except:
             return None
+
 
 class TimeScale:
 
@@ -158,6 +159,7 @@ class TimeScale:
 
     def saveTS(self):
         self._save()
+
 
 class Screen:
 
@@ -238,7 +240,7 @@ class Screen:
     def debug(self, str):
         self.window.addstr(self._max_y-1, 2, str, curses.color_pair(3))
 
-    def isEdge(self,x,y,edge):
+    def is_edge(self,x,y,edge):
 
         _ch = self.screen[x][y][1][0]
 
@@ -274,7 +276,7 @@ class Screen:
 
         for _x in self.screen:
             for _y in self.screen[_x]:
-                if self.isEdge(_x,_y[0],edge):
+                if self.is_edge(_x,_y[0],edge):
                     self.main_window.addstr(_y[0]+1, _x+1, edge, curses.color_pair(_y[2]) | curses.A_BOLD)
                 elif force or _y[3]:
                     self.main_window.addstr(_y[0]+1, _x+1, _y[1], curses.color_pair(_y[2]) | curses.A_BOLD)
