@@ -298,11 +298,16 @@ class Screen:
         """
         _total_E = self.R.refresh(_t)
 
+        """扫描“领地”"""
+        _counter = {}
         for _x in self.screen:
             for _y in self.screen[_x]:
-                if self.isEdge(_x,_y[0],edge):
+                if self.isEdge(_x, _y[0], edge):
                     self.main_window.addstr(_y[0]+1, _x+1, edge, curses.color_pair(_y[2]) | curses.A_BOLD)
                 elif force or _y[3]:
+                    if _y[1] not in _counter:
+                        _counter[_y[1]] = 0
+                    _counter[_y[1]] += 1
                     self.main_window.addstr(_y[0]+1, _x+1, _y[1], curses.color_pair(_y[2]) | curses.A_BOLD)
                     self.screen[_x][_y[0]][3] = False
         """显示当前状态
@@ -329,7 +334,8 @@ class Screen:
                                     curses.color_pair(7) | curses.A_BOLD)
             _i += 1
         self.menu_window.addstr(4, 2, "Total P:    % 12d" % _tot_alive, curses.color_pair(1) | curses.A_BOLD)
-        self.menu_window.addstr(5, 2, "Total Ereq: % 12d" % _tot_req, curses.color_pair(7) | curses.A_BOLD)
+        # self.menu_window.addstr(5, 2, "Total Ereq: % 12d" % _tot_req, curses.color_pair(7) | curses.A_BOLD)
+        self.menu_window.addstr(5, 2, "%s" % _counter, curses.color_pair(7) | curses.A_BOLD)
         self.main_window.refresh()
         self.menu_window.refresh()
 
