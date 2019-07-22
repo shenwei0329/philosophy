@@ -319,11 +319,11 @@ class Screen:
                 if self.isEdge(_x, _y[0], edge):
                     self.main_window.addstr(_y[0]+1, _x+1, edge, curses.color_pair(_y[2]) | curses.A_BOLD)
                 elif force or _y[3]:
-                    if _y[1] not in _counter:
-                        _counter[_y[1]] = 0
-                    _counter[_y[1]] += 1
                     self.main_window.addstr(_y[0]+1, _x+1, _y[1], curses.color_pair(_y[2]) | curses.A_BOLD)
                     self.screen[_x][_y[0]][3] = False
+                if _y[1] not in _counter:
+                    _counter[_y[1]] = 0
+                _counter[_y[1]] += 1
 
         self.set_power(_counter, _total_E)
 
@@ -345,8 +345,13 @@ class Screen:
             _tot_req += _req
             _x, _y, _cr, _col = _o.getPosition()
             self.display_dot(_x, _y, _cr, colorpair=_col)
-            _x,_y,_cr,_col = _o.getPosition()
-            self.menu_window.addstr(7+_i*3, 2, "Obj[%c.%d]: (%d,%d)" % (_cr, _col, _x, _y))
+            # _x, _y, _cr, _col = _o.getPosition()
+            if _o.get_chr() in _counter:
+                self.menu_window.addstr(7+_i*3, 2, "Obj[%c.%d]: (%03d,%03d) %d" % (_cr,
+                                                                                   _col,
+                                                                                   _x,
+                                                                                   _y,
+                                                                                   _counter[_o.get_chr()]))
             self.menu_window.addstr(8+_i*3, 4, "% 6d % 8d % 5d % 5d % 5d" % (_alive, _req, _male, _female, _mating),
                                     curses.color_pair(7) | curses.A_BOLD)
             _i += 1
