@@ -183,17 +183,17 @@ class Ps:
             return False
 
         if need == 'Male':
-            _v = random.random()
-            if (_v > 0.6) and (_v < 0.8):
-                """设置受孕条件，由于繁殖太快，需要严格受孕条件
-                """
-                self.quota -= 5
-                return True
-            else:
-                return False
+            if (self.age >= 16) and (self.age < 70) and (self.quota > 5):
+                _v = random.random()
+                if (_v > 0.6) and (_v < 0.8):
+                    """设置受孕条件，由于繁殖太快，需要严格受孕条件
+                    """
+                    self.quota -= 5
+                    return True
+            return False
         else:
             _ret = False
-            if (self.age>=14) and (self.age<50) and (self.quota>3):
+            if (self.age >= 14) and (self.age < 50) and (self.quota > 3):
                 if self.reproduction["pregnant"] < 0:
                     """未孕
                     """
