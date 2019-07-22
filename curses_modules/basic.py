@@ -212,11 +212,15 @@ class Screen:
         for _i in range(5):
             self.Obj.append(obj.Obj("%d" % _i, 0, 0, obj_pattern[_i % len(obj_pattern)], (_i % 7)+1))
 
-    def set_power(self, e):
+    def set_power(self, e, E):
+        _sum = 0
+        for _en in e:
+            _sum += e[_en]
+
         for _o in self.Obj:
             _p = _o.get_chr()
             if _p in e:
-                _o.set_power(e[_p])
+                _o.set_power(int(float(E*float(e[_p])/float(_sum))))
 
     def loadData(self):
         _screen = self.backup.load()
@@ -319,7 +323,7 @@ class Screen:
                     self.main_window.addstr(_y[0]+1, _x+1, _y[1], curses.color_pair(_y[2]) | curses.A_BOLD)
                     self.screen[_x][_y[0]][3] = False
 
-        self.set_power(_counter)
+        self.set_power(_counter, _total_E)
 
         """显示当前状态
         """
@@ -337,7 +341,7 @@ class Screen:
             _alive, _req, _male, _female, _mating = _o.time_scale(_t)
             _tot_alive += _alive
             _tot_req += _req
-            _x,_y,_cr,_col = _o.getPosition()
+            _x, _y, _cr, _col = _o.getPosition()
             self.display_dot(_x, _y, _cr, colorpair=_col)
             _x,_y,_cr,_col = _o.getPosition()
             self.menu_window.addstr(7+_i*3, 2, "Obj[%c.%d]: (%d,%d)" % (_cr, _col, _x, _y))
