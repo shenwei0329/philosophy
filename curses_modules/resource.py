@@ -93,7 +93,7 @@ class Ps:
             self.tot_reproduction = 0
             """仅针对女性：怀孕pregnant：孕期；生育间隔interval
             """
-            self.reproduction = {"pregnant":-1 ,"interval":-1}
+            self.reproduction = {"pregnant": -1 , "interval": -1}
             self.quota = 10
             if random.random() > 0.5:
                 self.sex = 'Male'
@@ -119,6 +119,10 @@ class Ps:
         self.backup.save(_person)
 
     def life_one_day(self):
+        """
+        个人成长
+        :return:
+        """
         self.day += 1
         if (self.day % 90) == 0:
             self.age += 0.25
@@ -310,13 +314,14 @@ class Resource:
 
 def main():
 
-    R = Resource(50,50)
-    for _i in range(0,365*20,10):
+    R = Resource(20, 30)
+    for _i in range(0, 365*20, 10):
         R.refresh(_i)
         print R.show(2,4)
-        if R.get(2,4,5):
+        if R.get(2, 4, 5):
             print "Get!"
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
 
     main()
