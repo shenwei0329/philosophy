@@ -126,9 +126,9 @@ class Ps:
         self.day += 1
         if (self.day % 90) == 0:
             self.age += 0.25
-        """人对E的需要：【0-80岁】
+        """人一天中对E的需要：【0-80岁】
         """
-        self.quota += self.dltQ * math.sin((math.pi/80.)*self.age)
+        self.quota = self.dltQ * math.sin((math.pi/80.)*self.age)
         """孕期处理
         """
         if self.sex == 'Female':

@@ -212,15 +212,17 @@ class Screen:
         for _i in range(5):
             self.Obj.append(obj.Obj("%d" % _i, 0, 0, obj_pattern[_i % len(obj_pattern)], (_i % 7)+1))
 
-    def set_power(self, e, E):
+    def set_power(self, e, total_power):
+        """按比例分配能量"""
         _sum = 0
+        """计算资源总数"""
         for _en in e:
             _sum += e[_en]
 
         for _o in self.Obj:
             _p = _o.get_chr()
             if _p in e:
-                _o.set_power(int(float(E*float(e[_p])/float(_sum))))
+                _o.set_power(int(float(total_power)*float(e[_p])/float(_sum)))
 
     def loadData(self):
         _screen = self.backup.load()
