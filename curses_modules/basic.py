@@ -335,7 +335,9 @@ class Screen:
             _i += 1
         self.menu_window.addstr(4, 2, "Total P:    % 12d" % _tot_alive, curses.color_pair(1) | curses.A_BOLD)
         # self.menu_window.addstr(5, 2, "Total Ereq: % 12d" % _tot_req, curses.color_pair(7) | curses.A_BOLD)
-        self.menu_window.addstr(5, 2, "%s" % _counter, curses.color_pair(7) | curses.A_BOLD)
+        _j = 0
+        for _a in _counter:
+            self.menu_window.addstr(5 + _j, 2, "%s: %d" % (_a, _counter[_a]), curses.color_pair(7) | curses.A_BOLD)
         self.main_window.refresh()
         self.menu_window.refresh()
 

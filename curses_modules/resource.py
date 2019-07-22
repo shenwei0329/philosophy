@@ -18,6 +18,7 @@ import basic
 
 random.seed(time.time())
 
+
 class E:
     """
     能量E
