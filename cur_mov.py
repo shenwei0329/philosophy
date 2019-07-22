@@ -49,6 +49,7 @@ def main():
         scr.saveData()
         scr.unset_win()
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
 
     main()

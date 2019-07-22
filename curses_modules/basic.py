@@ -19,7 +19,8 @@ MONTH_SEASON = [0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 0]
 edge_pattern = '^'
 obj_pattern = ['.', '-', '=', '+', '#', 'x', '*', 'o', 'O']
 
-def_backup = 'mongodb'
+# def_backup = 'mongodb'
+def_backup = 'none'
 
 db = None
 cur = None

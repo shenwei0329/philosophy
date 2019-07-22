@@ -115,6 +115,10 @@ class Obj:
                 _requirment += _p.show()
             if _p.alive():
                     _alive += 1
+            else:
+                """从人群中删除"""
+                self.P.remove(_p)
+
         if len(_male) > 0 and len(_female) > 0:
             """若有满足交配条件的两性，则允许交配
             """
