@@ -23,6 +23,7 @@ class Obj:
         self.chr = ch
         self.color = color
         self.V = (0., 0., 0., 0.,)
+        self.E = 0
 
         """群体的个人集合
         """
@@ -46,6 +47,9 @@ class Obj:
         self.V = self.policy.getPolicy()
         self.X = self.X + (self.V[0]-self.V[2])
         self.Y = self.Y + (self.V[1]-self.V[3])
+
+    def get_chr(self):
+        return self.chr
 
     def getPosition(self):
         return int(self.X), int(self.Y), self.chr, self.color
@@ -91,6 +95,14 @@ class Obj:
                     self.female += 1
                 self.P.append(_p)
 
+    def set_power(self, e):
+        """
+        给群体分配能量
+        :param e: 能量
+        :return:
+        """
+        self.E = e
+
     def time_scale(self, ts):
         """
         时标处理器
@@ -102,6 +114,7 @@ class Obj:
         _male = []
         _female = []
         self.mating = 0
+
         for _p in self.P:
             if ts % 24 == 0:
                 _requirment += _p.life_one_day()
@@ -119,26 +132,30 @@ class Obj:
                 """从人群中删除"""
                 self.P.remove(_p)
 
-        if len(_male) > 0 and len(_female) > 0:
-            """若有满足交配条件的两性，则允许交配
-            """
-            for _m in _male:
-                _m.mating('Male')
-            for _f in _female:
-                if _f.mating('Female'):
-                    self.mating += 0
-        for _p in self.P:
-            if _p.is_mating():
-                self.mating += 1
-            if _p.birth():
-                """新生一代
+        if self.E > _requirment:
+
+            if len(_male) > 0 and len(_female) > 0:
+                """若有满足交配条件的两性，则允许交配
                 """
-                _name = "%s-%s" % (self.name, uuid.uuid4())
-                _p = resource.Ps(_name)
-                if _p.show_sex() == 'Male':
-                    self.male += 1
-                else:
-                    self.female += 1
-                self.P.append(_p)
+                for _m in _male:
+                    _m.mating('Male')
+                for _f in _female:
+                    if _f.mating('Female'):
+                        self.mating += 0
+            for _p in self.P:
+                if _p.is_mating():
+                    self.mating += 1
+                if _p.birth():
+                    """新生一代
+                    """
+                    _name = "%s-%s" % (self.name, uuid.uuid4())
+                    _p = resource.Ps(_name)
+                    if _p.show_sex() == 'Male':
+                        self.male += 1
+                    else:
+                        self.female += 1
+                    self.P.append(_p)
+
+            self.E -= _requirment
 
         return _alive, _requirment, self.male, self.female, self.mating

@@ -135,6 +135,7 @@ class BackUp:
         except:
             return None
 
+
 class TimeScale:
 
     def __init__(self):
@@ -185,6 +186,7 @@ class TimeScale:
     def saveTS(self):
         self._save()
 
+
 class Screen:
 
     def __init__(self):
@@ -209,6 +211,12 @@ class Screen:
         self.Obj = []
         for _i in range(5):
             self.Obj.append(obj.Obj("%d" % _i, 0, 0, obj_pattern[_i % len(obj_pattern)], (_i % 7)+1))
+
+    def set_power(self, e):
+        for _o in self.Obj:
+            _p = _o.get_chr()
+            if _p in e:
+                _o.set_power(e[_p])
 
     def loadData(self):
         _screen = self.backup.load()
@@ -310,6 +318,9 @@ class Screen:
                     _counter[_y[1]] += 1
                     self.main_window.addstr(_y[0]+1, _x+1, _y[1], curses.color_pair(_y[2]) | curses.A_BOLD)
                     self.screen[_x][_y[0]][3] = False
+
+        self.set_power(_counter)
+
         """显示当前状态
         """
         self.menu_window.addstr(1, 2, "TimeScale: % 8d" % _t)
@@ -334,10 +345,7 @@ class Screen:
                                     curses.color_pair(7) | curses.A_BOLD)
             _i += 1
         self.menu_window.addstr(4, 2, "Total P:    % 12d" % _tot_alive, curses.color_pair(1) | curses.A_BOLD)
-        # self.menu_window.addstr(5, 2, "Total Ereq: % 12d" % _tot_req, curses.color_pair(7) | curses.A_BOLD)
-        _j = 0
-        for _a in _counter:
-            self.menu_window.addstr(5 + _j, 2, "%s: %d" % (_a, _counter[_a]), curses.color_pair(7) | curses.A_BOLD)
+        self.menu_window.addstr(5, 2, "Total Ereq: % 12d" % _tot_req, curses.color_pair(7) | curses.A_BOLD)
         self.main_window.refresh()
         self.menu_window.refresh()
 
