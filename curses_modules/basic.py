@@ -219,10 +219,13 @@ class Screen:
         for _en in e:
             _sum += e[_en]
 
+        _ret = {}
         for _o in self.Obj:
             _p = _o.get_chr()
             if _p in e:
-                _o.set_power(int(float(total_power)*float(e[_p])/float(_sum)))
+                _ret[_p] = float(total_power)*float(e[_p])/float(_sum)
+                _o.set_power(int(_ret[_p]))
+        return _ret
 
     def loadData(self):
         _screen = self.backup.load()
@@ -325,7 +328,7 @@ class Screen:
                     _counter[_y[1]] = 0
                 _counter[_y[1]] += 1
 
-        self.set_power(_counter, _total_E)
+        _rat = self.set_power(_counter, _total_E)
 
         """显示当前状态
         """
@@ -347,11 +350,13 @@ class Screen:
             self.display_dot(_x, _y, _cr, colorpair=_col)
             # _x, _y, _cr, _col = _o.getPosition()
             if _o.get_chr() in _counter:
-                self.menu_window.addstr(7+_i*3, 2, "Obj[%c.%d]: (%03d,%03d) %d" % (_cr,
-                                                                                   _col,
-                                                                                   _x,
-                                                                                   _y,
-                                                                                   _counter[_o.get_chr()]))
+                self.menu_window.addstr(7+_i*3, 2, "Obj[%c.%d]: (%03d,%03d) %d %0.2f" % (_cr,
+                                                                                         _col,
+                                                                                         _x,
+                                                                                         _y,
+                                                                                         _counter[_o.get_chr()],
+                                                                                         _rat[_o.get_chr()]
+                                                                                         ))
             self.menu_window.addstr(8+_i*3, 4, "% 6d % 8d % 5d % 5d % 5d" % (_alive, _req, _male, _female, _mating),
                                     curses.color_pair(7) | curses.A_BOLD)
             _i += 1

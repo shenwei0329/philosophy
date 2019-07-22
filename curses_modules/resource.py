@@ -93,7 +93,7 @@ class Ps:
             self.tot_reproduction = 0
             """仅针对女性：怀孕pregnant：孕期；生育间隔interval
             """
-            self.reproduction = {"pregnant": -1 , "interval": -1}
+            self.reproduction = {"pregnant": -1, "interval": -1}
             self.quota = 10
             if random.random() > 0.5:
                 self.sex = 'Male'
@@ -157,7 +157,7 @@ class Ps:
         return False
 
     def alive(self):
-        if (self.age/360.) > 80:
+        if self.age > 80.:
             return False
         else:
             return True
