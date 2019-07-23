@@ -350,13 +350,11 @@ class Screen:
             self.display_dot(_x, _y, _cr, colorpair=_col)
             # _x, _y, _cr, _col = _o.getPosition()
             if _o.get_chr() in _counter:
-                self.menu_window.addstr(7+_i*3, 2, "Obj[%c%d]:%03d,%03d %05d %0.2f" % (_cr,
-                                                                                       _col,
-                                                                                       _x,
-                                                                                       _y,
-                                                                                       _counter[_o.get_chr()],
-                                                                                       _rat[_o.get_chr()]
-                                                                                       ))
+                self.menu_window.addstr(7+_i*3, 2, "Obj[%c%d]:%05d %0.2f" % (_cr,
+                                                                             _col,
+                                                                             _counter[_o.get_chr()],
+                                                                             _rat[_o.get_chr()]
+                                                                             ))
             self.menu_window.addstr(8+_i*3, 4, "% 6d % 8d % 5d % 5d % 5d" % (_alive, _req, _male, _female, _mating),
                                     curses.color_pair(7) | curses.A_BOLD)
             _i += 1

@@ -140,9 +140,8 @@ class Ps:
             if self.reproduction["pregnant"] >= 0:
                 """孕育过程需要能量
                 """
-                if self.quota > 5:
-                    self.reproduction["pregnant"] += 1
-                    self.quota -= 5
+                self.reproduction["pregnant"] += 1
+                self.quota += 5.
             elif self.reproduction["interval"] >= 0:
                 self.reproduction["interval"] += 1
         return self.quota
@@ -157,7 +156,8 @@ class Ps:
         return self.sex
 
     def is_mating(self):
-        if self.reproduction["pregnant"]>0:
+        if self.reproduction["pregnant"] > 0:
+            """孕育中"""
             return True
         return False
 
@@ -174,10 +174,10 @@ class Ps:
         :return: 判断结果
         """
         if need == 'Male':
-            if (self.sex == 'Male') and (self.age >= 16) and (self.age < 70) and (self.quota > 5):
+            if (self.sex == 'Male') and (self.age >= 16) and (self.age < 70):
                 return True
         else:
-            if (self.age >= 14) and (self.age < 50) and (self.quota > 3):
+            if (self.age >= 14) and (self.age < 50):
                 if (self.reproduction["pregnant"] < 0) and \
                         ((self.reproduction["interval"] < 0) or (self.reproduction["interval"] >= 360)):
                     return True
@@ -193,7 +193,7 @@ class Ps:
             return False
 
         if need == 'Male':
-            if (self.age >= 16) and (self.age < 70) and (self.quota > 5):
+            if (self.age >= 16) and (self.age < 70):
                 _v = random.random()
                 if (_v > 0.6) and (_v < 0.8):
                     """设置受孕条件，由于繁殖太快，需要严格受孕条件
@@ -203,7 +203,7 @@ class Ps:
             return False
         else:
             _ret = False
-            if (self.age >= 14) and (self.age < 50) and (self.quota > 3):
+            if (self.age >= 14) and (self.age < 50):
                 if self.reproduction["pregnant"] < 0:
                     """未孕
                     """
@@ -212,8 +212,7 @@ class Ps:
                         """设置受孕条件，由于繁殖太快，需要严格受孕条件
                         """
                         if (self.reproduction["interval"] < 0) or (self.reproduction["interval"] >= 360):
-                            """已间隔1年
-                            """
+                            """孕后必须时隔1年才能再孕"""
                             _ret = True
             if _ret:
                 """怀孕

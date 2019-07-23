@@ -24,6 +24,7 @@
 from curses_modules import basic
 import time, random, sys
 
+
 def main():
 
     random.seed(time.clock())
@@ -38,11 +39,11 @@ def main():
         while True:
             scr.refresh()
             time.sleep(0.01)
-            chr = scr.get_ch_and_continue(False)
-            if chr==ord('q'):
+            _chr = scr.get_ch_and_continue(False)
+            if _chr == ord('q'):
                 scr.saveData()
                 break
-    except Exception,e:
+    except Exception, e:
         scr.get_ch_and_continue(True)
         raise e
     finally:
