@@ -132,6 +132,7 @@ class Obj:
                 """从人群中删除"""
                 self.P.remove(_p)
 
+        """群体拥有的能量满足需求时"""
         if self.E > _requirment:
 
             if len(_male) > 0 and len(_female) > 0:

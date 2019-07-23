@@ -34,11 +34,16 @@ class E:
             self.quota = _data['quota']
 
     def dlt_E(self, time_scale):
+        """
+        每人每天需要的能量
+        :param time_scale:
+        :return:
+        """
         _x = (float(time_scale)/24.) % 360
         self.quota -= math.cos((2 * math.pi / 360) * _x)
-        if self.quota<0:
+        if self.quota < 0:
             self.quota = 0
-        elif self.quota>self.max_quota:
+        elif self.quota > self.max_quota:
             self.quota = self.max_quota
 
     def show(self):
